@@ -2,12 +2,12 @@
 Last.fm API Skill
 =================
 
-.. image:: https://upload.wikimedia.org/wikipedia/commons/d/d4/Last.fm_logo.svg
-   :width: 200 px
+.. image:: https://www.last.fm/static/images/logo_open_graph_large.png
+   :width: 300px
    :alt: Last.fm Logo
 
-.. image:: https://skills.sh/b/Mykeyy/lastfm
-   :target: https://skills.sh/Mykeyy/lastfm
+.. image:: https://skills.sh/b/mykeyy/lastfm
+   :target: https://skills.sh/mykeyy/lastfm
    :alt: skills.sh badge
 
 This is an Agent Skill for the Last.fm Music Discovery API. It gives your AI tools a complete, compressed lookup guide for everything they need to interact with Last.fm: authentication, scrobbling, and API methods.
