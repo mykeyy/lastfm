@@ -6,7 +6,7 @@ Last.fm API Skill
    :width: 120px
    :alt: Last.fm Logo
 
-.. image:: https://skills.sh/b/mykeyy/lastfm
+.. image:: https://img.shields.io/badge/skills.sh-mykeyy/lastfm-D51007
    :target: https://skills.sh/mykeyy/lastfm
    :alt: skills.sh badge
 
