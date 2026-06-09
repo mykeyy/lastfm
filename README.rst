@@ -2,8 +2,8 @@
 Last.fm API Skill
 =================
 
-.. image:: https://www.last.fm/static/images/logo_open_graph_large.png
-   :width: 300px
+.. image:: logo.svg
+   :width: 120px
    :alt: Last.fm Logo
 
 .. image:: https://skills.sh/b/mykeyy/lastfm
