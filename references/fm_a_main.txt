@@ -1,0 +1,1067 @@
+Last.fm Music Discovery API
+
+The Last.fm API allows anyone to build their own programs using Last.fm data. Find out more about how you can plug directly into our vast database or browse the list of methods on the left.
+Getting started
+
+Our API is available to anyone. Here's what you need to get going:
+
+    Get an API account
+    Read the Documentation
+    Join the Support Forums (opens new window)
+
+Commercial or Research Usage
+
+If you are planning to use our API for commercial or research/academic purposes, please contact us prior to use via email at partners@last.fm.
+
+Introduction
+
+The Last.fm API allows you to call methods that respond in REST (opens new window) style xml. Individual methods are detailed in the menu on the left.
+
+API ROOT
+
+The API root URL is located at http://ws.audioscrobbler.com/2.0/ (opens new window)
+
+Generally speaking, you will send a method parameter expressed as 'package.method' along with method specific arguments to the root URL. The API supports multiple transport formats but will respond in Last.fm idiom xml by default.
+
+Note:
+
+    Please use an identifiable User-Agent header on all requests. This helps our logging and reduces the risk of you getting banned.
+    Be reasonable in your usage of the API and ensure you don't make an excessive number of calls as that can impact the reliability of the service to you and other users. We encourage best practice implementation, for example, if you're making a web application, try not to hit the API on page load. Your account may be suspended if your application is continuously making several calls per second or if you’re making excessive calls. See our API Terms of Service for more information on limits.
+    If you are planning to use our API for commercial purposes, please contact us via email at partners@last.fm.
+    We assume that you are using an RFC 3986 (opens new window)-compliant HTTP client to access the web services. In particular, pay attention to your url encoding. This will not be an issue for 99% of developers.
+
+Encoding
+
+Use UTF-8 (opens new window) encoding when sending arguments to API methods.
+Request Styles
+
+You can get more information on how to work with REST requests or XML-RPC requests when calling the Last.fm API.
+Authentication
+
+The authentication protocol allows you to perform actions on user accounts in a manner that is secure for Last.fm users. All write services require authentication.
+Scrobbling
+
+We encourage services that use the Last.fm API to build-in scrobbling natively into their applications (where applicable, and particularly for media players), to allow users to send listening data in to their Last.fm user profiles. This can be done through our Scrobbling API.
+Discussion
+
+Join the Last.fm Support Forums (opens new window) for information about new Web Services, access to beta API's, provide feedback and discuss development with other developers.
+Terms of Service
+
+For our API Terms of Service please see here
+
+User Authentication
+
+The authentication API provides third-parties with a secure means of creating Last.fm user sessions over the Last.fm API, for deeper integration with our platform. All write services require authentication.
+1. Get an API Key
+
+You will need to apply for a key before authenticating with the API.
+2. Configure Your API Account
+
+Head over to your api accounts page, and select the account you wish to configure. You need to supply an application name, a description and an optional logo. Each of your account pages contains an API key and secret; you will need both to use the API.
+3. Choose your authentication path
+
+    If you're building a web application, see the web application how-to for more details.
+    If you're building a desktop application, see the desktop application how-to for more details.
+    If you're building on a standalone device such as a mobile phone, see the mobile how-to for more details.
+
+In some cases, you may want to choose a different authentication path from the obvious (e.g. a mobile app could well use the desktop path if there's a web browser on the device). If in doubt, check them all out.
+4. Authentication Spec
+
+See the full authentication API specification for an overview of the API.
+
+Authentication: Web Application How-To
+
+This authentication how-to is for web applications only. Desktop application developers should see the desktop application how-to.
+1. Get an API Key
+
+If you don’t already have an API account, please apply for one. For each of your accounts you will have a shared secret which you will require in Section 6. You will also need to set up a callback url which our authentication service will redirect to in Section 4.
+2. Request authorization from the user
+
+Send your user to last.fm/api/auth with your API key as a parameter. Use an HTTP GET request. Your request will look like this:
+
+http://www.last.fm/api/auth/?api_key=xxx
+
+If the user is not logged in to Last.fm, they will be redirected to the login page before being asked to grant your web application permission to use their account. On this page they will see the name of your application, along with the application description and logo as supplied in Section 1.
+2.1 Custom callback url
+
+You can optionally specify a callback URL that is different to your API Account callback url. Include this as a query param cb
+
+. This allows you to have users forward to a specific part of your site after the authorisation process.
+
+http://www.last.fm/api/auth/?api_key=xxx&cb=http://example.com
+
+3. Create an authentication handler
+
+Once the user has granted permission to use their account on the Last.fm page, Last.fm will redirect to your callback url, supplying an authentication token as a GET variable.
+
+<callback_url>/?token=xxxxxxx
+
+If the callback url already contains a query string then token variable will be appended, like;
+
+<callback_url>&token=xxxxxxx
+
+The script located at your callback url should pick up this authentication token and use it to create a Last.fm web service session as described in Section 4.
+3.1 Authentication Tokens
+
+Authentication tokens are user and API account specific. They are valid for 60 minutes from the moment they are granted.
+4. Fetch a Web Service Session
+
+Send your api key along with an api signature and your authentication token as arguments to the auth.getSession API method call. The parameters for this call are defined as such:
+
+api_key: Your 32-character API Key.
+token: The authentication token received at your callback url as a GET variable.
+api_sig: Your 32-character API method signature, as explained in Section 6
+
+Note: You can only use an authentication token once. It will be consumed when creating your web service session.
+
+The response format of this call is shown on the auth.getSession method page.
+4.1 Session Lifetime
+
+Session keys have an infinite lifetime by default. You are recommended to store the key securely. Users are able to revoke privileges for your application on their Last.fm settings screen, rendering session keys invalid.
+5. Make authenticated web service calls
+
+You can now sign your web service calls with a method signature, provided along with the session key you received in Section 4 and your API key. You will need to include all three as parameters in subsequent calls in order to be able to access services that require authentication. You can visit individual method call pages to find out if they require authentication. Your three authentication parameters are defined as:
+
+sk (Required) : The session key returned by auth.getSession service.
+api_key (Required) : Your 32-character API key.
+api_sig (Required) : Your API method signature, constructed as explained in Section 6
+6. Sign your calls
+
+Construct your api method signatures by first ordering all the parameters sent in your call alphabetically by parameter name and concatenating them into one string using a <name><value> scheme. So for a call to auth.getSession you may have:
+
+**api_key**xxxxxxxx**method**auth.getSession**token**xxxxxxx
+
+Ensure your parameters are utf8 (opens new window) encoded. Now append your secret to this string. Finally, generate an md5 (opens new window) hash of the resulting string. For example, for an account with a secret equal to 'mysecret', your api signature will be:
+
+api signature = md5("api_keyxxxxxxxxmethodauth.getSessiontokenxxxxxxxmysecret")
+
+Where md5() is an md5 hashing operation and its argument is the string to be hashed. The hashing operation should return a 32-character hexadecimal md5 hash.
+
+Authentication: Mobile Application How-To
+
+This authentication how-to is for standalone mobile devices only.
+1. Get an API Key
+
+You can apply for an API key here. When you have been granted an API Key you can configure your accounts by visiting last.fm/api/accounts . Here you will see a shared secret which will be required in Section 4.
+2. Request authorization from the user
+
+Send a request to auth.getMobileSession, sending the user's credentials to the call. The parameters for this call are defined as:
+
+username (Required) : The last.fm username.
+password (Required) : A plaintext password.
+api_key (Required) : A Last.fm API key.
+api_sig (Required) : A Last.fm method signature. See Section 4 for more information.
+
+This webservice has to be called via POST and HTTPS. It will fail if you try to use it via GET or HTTP.
+
+auth.getMobileSession will return a session key in response to be used on subsequent calls.
+2.1 Session Lifetime
+
+Session keys have an infinite lifetime by default. You are recommended to store the key securely. Users are able to revoke privileges for your application on their Last.fm settings screen, rendering session keys invalid.
+3. Make authenticated web service calls
+
+You can now sign your web service calls with a method signature, provided along with the session key you received in Section 2 and your API key. You will need to include all three as parameters in subsequent calls in order to be able to access services that require authentication. You can visit individual method call pages to find out if they require authentication. Your three authentication parameters are defined as:
+
+sk (Required) : The session key returned by auth.getMobileSession service.
+api_key (Required) : Your 32-character API key.
+api_sig (Required) : Your API method signature, constructed as explained in Section 4
+4. Sign your calls
+
+Construct your api method signatures by first ordering all the parameters sent in your call alphabetically by parameter name and concatenating them into one string using a <name><value> scheme. So for a call to auth.getMobileSession you may have:
+
+**api_key**xxxxxxxx**method**auth.getMobileSession**password**xxxxxxx**username**xxxxxxxx
+
+Ensure your parameters are utf8 (opens new window) encoded. Now append your secret to this string. Finally, generate an md5 (opens new window) hash of the resulting string. For example, for an account with a secret equal to 'mysecret', your api signature will be:
+
+api signature = md5("api_keyxxxxxxxxmethodauth.getMobileSession
+                         passwordxxxxxxxusernamexxxxxxxxmysecret")
+
+Where md5() is an md5 hashing operation and its argument is the string to be hashed. The hashing operation should return a 32-character hexadecimal md5 hash.
+
+Authentication: Desktop Application How-To
+
+This authentication how-to is for desktop applications only. Web application developers should see the web application how-to.
+1. Get an API Key
+
+If you don’t already have an API account, please apply for one. For each of your accounts you will have a shared secret which you will require in Section 6. You will also need to set up a callback url which our authentication service will redirect to in Section 4.
+2. Fetch a request token
+
+Make an API method call to the auth.getToken service. You should send the following arguments to that call:
+
+api_key: Your 32-character API Key.
+api_sig: A 32-character API method signature, constructed as explained in Section 6
+
+This will return a token. To see the response format check the method documentation page. The token is not authorized by the user at this stage.
+2.1 Authentication Tokens
+
+Authentication tokens are API account specific. They are valid for 60 minutes from the moment they are granted.
+3. Request authorization from the user
+
+Your application needs to open a web browser and send the user to last.fm/api/auth with your API key and auth token as parameters. Use an HTTP GET request. Your request will look like this:
+
+http://www.last.fm/api/auth/?api_key=xxxxxxxxxxx&token=xxxxxxxx
+
+If the user is not logged in to Last.fm, they will be redirected to the login page before being asked to grant your application permission to use their account. On this page they will see the name of your application, along with the application description and logo as supplied in Section 1. Once the user has granted your application permission to use their account, the browser-based process is over and the user is asked to close their browser and return to your application.
+4. Fetch A Web Service Session
+
+Send your api key along with an api signature and your authentication token as arguments to the auth.getSession API method call. The parameters are defined as such:
+
+api_key: Your 32-character API Key.
+token: The authentication token received from the auth.getToken method call.
+api_sig: Your 32-character API method signature, as explained in Section 6
+
+Note: You can only use an authentication token once. It will be consumed when creating your web service session.
+
+The response format of this call is shown on the auth.getSession method page.
+4.1 Session Lifetime
+
+Session keys have an infinite lifetime by default. You are recommended to store the key securely. Users are able to revoke privileges for your application on their Last.fm settings screen, rendering session keys invalid.
+5. Make authenticated web service calls
+
+You can now sign your web service calls with a method signature, provided along with the session key you received in Section 4 and your API key. You will need to include all three as parameters in subsequent calls in order to be able to access services that require authentication. You can visit individual method call pages to find out if they require authentication. Your three authentication parameters are defined as:
+
+sk (Required) : The session key returned by auth.getSession service.
+api_key (Required) : Your 32-character API key.
+api_sig (Required) : Your API method signature, constructed as explained in Section 6
+6. Sign your calls
+
+Construct your api method signatures by first ordering all the parameters sent in your call alphabetically by parameter name and concatenating them into one string using a <name><value> scheme. So for a call to auth.getSession you may have:
+
+**api_key**xxxxxxxx**method**auth.getSession**token**xxxxxxx
+
+Ensure your parameters are utf8 (opens new window) encoded. Now append your secret to this string. Finally, generate an md5 (opens new window) hash of the resulting string. For example, for an account with a secret equal to 'mysecret', your api signature will be:
+
+api signature = md5("api_keyxxxxxxxxmethodauth.getSessiontokenxxxxxxxmysecret")
+
+Where md5() is an md5 hashing operation and its argument is the string to be hashed. The hashing operation should return a 32-character hexadecimal md5 hash.
+
+Authentication API
+
+This is Version 1.0 of the Last.fm authentication API specification.
+1. Authors
+
+Anil Bawa-Cavia (opens new window)
+2. Requirements
+
+You must have applied for, and received, a Last.fm API account, via the account application screen. You must configure your Last.fm API account with:
+
+    Your application name and description.
+    Your application logo.
+
+Your account page contains your secret which must be used when making authenticated calls – see Section 8 below.
+2.1 Web-based Authentication
+
+You must also configure a callback URL which will be used in Section 3.2 below.
+3. Authentication For Web Applications
+3.1 Request authorization from the user
+
+Web applications should send a user to last.fm/api/auth, sending an API key as a parameter, in order to authenticate the user. This should be an HTTP GET request. Your request will look like this:
+
+http://www.last.fm/api/auth/?api_key=xxxxxxxxxx
+
+If the user is not logged in to Last.fm, they will be redirected to the login page before being asked to grant your web application permission to use their account. On this page they will see the name of your application, along with the application description and logo as supplied in Section 2.
+3.2 Create an authentication handler
+
+Once the user has granted permission to use their account on the Last.fm page, Last.fm will redirect to your callback url, supplying an authentication token as a GET variable.
+
+<callback_url>/?token=yyyyyy
+
+The script located at your callback url should pick up this authentication token and use it to create a Last.fm web service session as described in Section 3.3.
+3.3 Create a Web Service Session
+
+Send your api key along with an api signature and your authentication token as arguments to the auth.getSession API method call. The parameters for this call are defined as such:
+
+api_key: Your 32-character API Key.
+token: The authentication token received at your callback url as a GET variable.
+api_sig: Your 32-character API method signature, as explained in Section 8.
+
+The call will respond with a session key that can be used in authenticated calls.
+4. Authentication For Desktop Applications
+4.1 Fetch a request token
+
+Make an API method call to the auth.getToken service. You should send the following arguments to that call:
+
+api_key: Your 32-character API Key.
+api_sig: A 32-character API method signature, constructed as explained in Section 8.
+
+This will return a token. To see the response format check the method documentation page. The token is not authorized by the user at this stage and cannot be used to create a session until it has been authorized.
+4.2 Request authorization from the user
+
+Your application needs to open an instance of a web browser and send the user to last.fm/api/auth with your API key and authentication token as parameters. Use an HTTP GET request. Your request will look like this:
+
+http://www.last.fm/api/auth/?api_key=xxxxxxxxxx&token=yyyyyy
+
+If the user is not logged in to Last.fm, they will be redirected to the login page before being asked to grant your application permission to use their account. On this page they will see the name of your application, along with the application description and logo as supplied in Section 2. Once the user has granted your application permission to use their account, the browser-based process is over and the user is asked to close their browser and return to your application.
+4.3 Create a Web Service Session
+
+Send your api key along with an api signature and your authentication token as arguments to the auth.getSession API method call. The parameters for this call are defined as such:
+
+api_key: Your 32-character API Key.
+token: The authentication token received at your callback url as a GET variable.
+api_sig: Your 32-character API method signature, as explained in Section 8.
+
+The call will respond with a session key that can be used in authenticated calls.
+5. Authentication For Mobile Applications
+
+Send a request to auth.getMobileSession, sending the user's credentials to the call. The parameters for this call are defined as:
+
+password (Required) : The user's password in plaintext.
+username (Required) : The user's Last.fm username.
+api_key (Required) : A Last.fm API key.
+api_sig (Required) : A Last.fm method signature. See Section 8 for more information.
+
+This call must be a POST made over HTTPS.
+
+auth.getMobileSession will return a session key in response to be used in authenticated calls.
+6. Tokens & Sessions
+6.1 Authentication Tokens
+
+Authentication tokens are API account specific. They are valid for 60 minutes from the moment they are granted and can only used once (they are consumed when a session is created).
+6.2 Session Lifetime
+
+Session keys have an infinite lifetime by default. You are recommended to store the key securely. Users are able to revoke privileges for your application on their Last.fm settings screen, rendering session keys invalid.
+7. Making authenticated calls
+
+You should sign authenticated web service calls with a method signature, provided along with the session key you received from auth.getSession and your API key. You will need to include all three as parameters in authenticated calls. You can visit individual method call pages to find out if they require authentication. Your three authentication parameters are defined as:
+
+sk (Required) : The session key returned by auth.getSession service.
+api_key (Required) : Your 32-character API key.
+api_sig (Required) : Your API method signature, constructed as explained in Section 8.
+8. Signing Calls
+
+Sign your authenticated calls by first ordering the parameters sent in your call alphabetically by parameter name and concatenating them into one string using a <name><value> scheme. You must not include the format and callback parameters. So for a call to auth.getSession you may have:
+
+api_keyxxxxxxxxxxmethodauth.getSessiontokenyyyyyy
+
+Ensure your parameters are utf8 (opens new window) encoded. Now append your secret to this string. Finally, generate an md5 (opens new window) hash of the resulting string. For example, for an account with a secret equal to 'ilovecher', your api signature will be:
+
+api signature = md5("api_keyxxxxxxxxxxmethodauth.getSessiontokenyyyyyyilovecher")
+
+Where md5() is an md5 hashing operation and its argument is the string to be hashed. The hashing operation should return a 32-character hexadecimal md5 hash.
+
+Scrobbling 2.0 Documentation
+
+    Overview
+    Now Playing Requests
+        Sending a Request
+        How we handle requests
+        Error handling
+    Scrobble Requests
+        When is a scrobble a scrobble?
+        When to set the "chosenByUser" parameter
+        Sending a Request
+        How we handle requests
+        Error handling
+        Retrying cached scrobbles
+    Filtered Requests
+    Meta data corrections
+    Help
+
+Overview
+
+This is a guide on how to send scrobbles to Last.fm.
+
+Scrobbling is a way to send information about the music a user is listening to. A client is anything that plays music, such as desktop music players, mobile apps, websites, etc.
+
+For every track a user listens to the client should send a track.updateNowPlaying request and a track.scrobble request.
+
+Scrobbling 2.0 is not backwards compatible with the old Submissions Protocol 1.2.1 (which is deprecated).
+Now Playing Requests
+
+The "Now Playing" service lets a client notify Last.fm that a user has started listening to a track. This does not affect a user's charts, but will feature the current track on their profile page, along with an indication of what music player they're using.
+
+This API method call is optional for scrobbling clients, but recommended. Requests should be sent as soon as a user starts listening to a track.
+Sending a Request
+
+The web service method for sending Now Playing information is track.updateNowPlaying.
+
+As with all our write web services, requests must be sent as HTTP POST requests to http://ws.audioscrobbler.com/2.0/ with form urlencoded parameters in the body of the request. The text encoding must be UTF-8.
+
+Requests must be authenticated.
+How we handle requests
+
+Once a request has been received by Last.fm the following sequence of events takes place on our side:
+
+    Check that the request passes our filters.
+    Find the track in our catalogue.
+    Update the user's Now Playing status with the track and client.
+    Return a response to the client indicating the outcome of the request.
+
+Error handling
+
+Last.fm signals the success or failure of a request by three different means:
+
+    The HTTP status code.
+    The lfm status attribute of the lfm XML element returned in the response body. This will be either "ok" or "failed".
+    The lfm error code (when the lfm status was "failed") further describes the cause of the error. This is the error element's code attribute in the XML returned in the response body.
+
+We recommend that your client logs all failed requests and their responses (HTTP headers, and the xml body) to assist debugging.
+
+Now Playing requests that fail should not be retried.
+Scrobble Requests
+
+The scrobble service lets a client add a track-play to a user's profile. This data is used to show a user's listening history and generate personalised charts and recommendations (and more).
+When is a scrobble a scrobble?
+
+A track should only be scrobbled when the following conditions have been met:
+
+    The track must be longer than 30 seconds.
+    And the track has been played for at least half its duration, or for 4 minutes (whichever occurs earlier.)
+
+As soon as these conditions have been met, the scrobble request may be sent at any time. It is often most convenient to send a scrobble request when a track has finished playing.
+
+Other considerations:
+
+    Do not attempt to determine a track's meta data from its filename. Please only use meta data from well-structured sources such as ID3 tags.
+    Do not use the corrections returned by the now playing service as input for the scrobble request, unless they have been explicitly approved by the user.
+
+When to set the "chosenByUser" parameter
+
+This parameter is used to indicate when a scrobble comes from a source that the user doesn't have "direct" control over. In most cases where a user is scrobbling their own music you can safely ignore this parameter. However, if the user is listening to music that is effectively chosen by someone other than themselves (e.g. from a Last.fm radio stream; from some other recommendation service; or radio show put together by a DJ or host) then this value should be set to "false". If there is any ambiguity or doubt then don't send this value.
+Sending a Request
+
+The web service method for sending scrobbles is track.scrobble.
+
+As with all our write web services, requests must be sent as HTTP POST requests to http://ws.audioscrobbler.com/2.0/ with form urlencoded (using utf-8) parameters in the body of the request.
+
+Requests must be authenticated.
+
+Multiple scrobbles may be sent in a single batch request, this is recommended when there are cached scrobbles to be sent in the case of previous errors. A batch request may contain up to 50 scrobbles.
+How we handle requests
+
+Once a request has been received by Last.fm the following sequence of events takes place on our side:
+
+    Check that the request passes our filters.
+    Find the track in our catalogue.
+    Store the scrobble in the user's profile.
+    Return a response to the client indicating the outcome of the request.
+
+Error handling
+
+Last.fm signals the success or failure of a request by three different means:
+
+    The HTTP status code.
+    The lfm status attribute of the lfm XML element returned in the response body. This will be either ok or failed.
+    The lfm error code (when the lfm status was failed) further describes the cause of the error. This is the error element's code attribute in the XML returned in the response body.
+
+We recommend that your client logs all failed requests and their responses (HTTP headers, and the xml body) to assist debugging.
+
+No matter what the HTTP status code is, ## you must inspect the content of the response
+
+. If the HTTP status is not 200 OK it indicates there was an error (that should be logged), but it does not indicate how to handle it. Additionally a HTTP status of 200 OK does not mean the request was successful.
+
+For example if the request was missing a required parameter you will receive an HTTP "400 Bad Request" status and retrying without modifying the request will always give the same response.
+
+Next inspect the lfm status and lfm status code. If the lfm status is "ok" then the request succeeded.
+
+For example if you send a request that is missing the artist parameter the response will be the following:
+
+<?xml version="1.0" encoding="utf-8"?>
+<lfm status="failed">
+    <error code="6">Missing required parameter artist</error>
+</lfm>
+
+Lfm error codes that indicate a scrobble request should be retried are:
+
+    11 : Service Offline - This service is temporarily offline, try again later.
+    16 : The service is temporarily unavailable, please try again.
+
+Additionally this lfm error code indicates that the client should reauthenticate to get a new session key before retrying the request:
+
+    9 : Invalid session key - Please re-authenticate
+
+All other error codes indicate the scrobble request was incorrectly formed in some way and should not be retried.
+
+This diagrams describes the flow for sending scrobble requests and handling the response.
+
+https://cdn.last.fm/images/scrobbling-error-handling.png
+Retrying cached scrobbles
+
+Since the server connectivity may be variable (either because of network outage, or server failure), requests will occasionally fail. It is recommended that clients hold scrobbles that need be retried in a local cache. This cache should survive client restarts, allowing the user to close the client and restart later without losing unsubmitted scrobbles. Scrobbles should be sent in order, therefore cached scrobbles should be sent before new scrobbles. Scrobbles can be sent in batches of up to 50 scrobbles per request.
+Filtered Requests
+
+A scrobble or Now Playing request may be ignored if we detect bad meta data. This is not treated as an error condition, so if filtering takes place the response will have an "ok" status. The server will return an ignored message with an associated ignored code. This information is useful if the client wants to show information about why a track was not added to the user's profile.
+
+In the case of batch scrobble requests, each scrobble is filtered separately. So if only one scrobble has bad meta data and is ignored other scrobbles in the request will still be accepted.
+
+Possible ignored message codes:
+
+    0 : None (the request passed all filters).
+    1 : Filtered artist.
+    2 : Filtered track.
+    3 : Timestamp too far in the past.
+    4 : Timestamp too far in the future.
+    5 : Max daily scrobbles exceeded.
+
+We may add additional ignored codes in the future.
+
+For example if you sent a scrobble request with artist="Unknown Artist" the response will look something like this:
+
+<?xml version='1.0' encoding='utf-8'?>
+<lfm status="ok">
+    <scrobbles accepted="0" ignored="1">
+        <scrobble>
+            <track corrected="0">Test Track</track>
+            <artist corrected="0">Unknown Artist</artist>
+            <album corrected="0"></album>
+            <albumartist corrected="0"></albumartist>
+            <timestamp>1288728940</timestamp>
+            <ignoredmessage code="1">
+                Artist name failed filter: Unknown Artist
+            </ignoredmessage>
+        </scrobble>
+    </scrobbles>
+</lfm>
+
+Meta data corrections
+
+The Last.fm catalogue contains correction information which we use to merge mispelled artists and tracks into their correct versions. If we find such a correction when resolving a track in our catalogue we will return it in the response.
+
+This information could optionally be used by the client to suggest track meta data (ID3 tags, etc) corrections to the user. They should not be applied automatically. Most clients will simply ignore corrections.
+
+Corrections are indicated by a corrected="1" attribute. Its value will contain the corrected version (so the value will differ from that in the request).
+
+For example if you send a scrobble request with artist="Bjork" the response will look something like this:
+
+<?xml version='1.0' encoding='utf-8'?>
+<lfm status="ok">
+    <scrobbles accepted="1" ignored="0">
+        <scrobble>
+            <track corrected="0">Wanderlust</track>
+            <artist corrected="1">Björk</artist>
+            <album corrected="0"></album>
+            <albumartist corrected="0"></albumartist>
+            <timestamp>1288728745</timestamp>
+            <ignoredmessage code="0"></ignoredmessage>
+        </scrobble>
+    </scrobbles>
+</lfm>
+
+This response shows the artist was corrected to "Björk".
+
+Considerations:
+
+    Do not use the corrections returned by the now playing service as input for the scrobble request, unless they have been explicitly approved by the user.
+
+Help
+
+If you experience any problems using the scrobbling API please report them on our support forums (opens new window). Try to give as much information about the requests and responses as possible.
+
+Radio API
+
+DEPRECATED
+
+This functionality is no longer supported. Documentation exists for reference only.
+Who can I stream radio to?
+
+Warning
+
+Any API account can only stream radio to Last.fm's paid subscribers Note: Due to licensing restrictions, you may not use the radio API on mobile telephones.
+Tuning the Radio
+
+The radio API requires authentication. See the authentication how-to.
+
+Once authenticated, you can tune the radio using the radio.tune API method. This takes a station parameter that must correspond to a last.fm protocol station url. Here is the general scheme of these URLs:
+
+lastfm://<stationtype>/<resourcename>/<station-subtype>
+
+Here is a list of the station types currently publicly available, with example protocol URLs:
+
+    Artist
+        Similar Artists Radio (e.g. lastfm://artist/cher/similarartists )
+        Top Fans Radio (e.g. lastfm://artist/cher/fans )
+    User
+        Library Radio (e.g. lastfm://user/last.hq/personal )
+        Mix Radio (e.g. lastfm://user/last.hq/loved )
+        Recommendation Radio (e.g. lastfm://user/last.hq/recommended )
+        Neighbours Radio (e.g. lastfm://user/last.hq/neighbours )
+    Tag
+        Global Tag Radio (e.g. lastfm://globaltags/disco )
+
+Fetching Radio Content
+
+Once the station is tuned, use the API method radio.getPlaylist to fetch content in XSPF format (see the XSPF specification (opens new window)). You will need to periodically pull on this XSPF service as it will provide content in small chunks. We recommend you prefetch a new XSPF before reaching the end of the last.
+
+The XSPF will look like this:
+
+<playlist version="1" xmlns="http://xspf.org/ns/0/">
+     <title>+Cher+Similar+Artists</title>
+     <creator>Last.fm</creator>
+     <date>2007-11-26T17:34:38</date>
+     <link rel="http://www.last.fm/expiry">3600</link>
+     <trackList>
+      <track>
+       <location>http://play.last.fm/....mp3</location>
+       <title>Two People (Live)</title>
+       <identifier>8212510</identifier>
+       <album>Tina Live In Europe</album>
+       <creator>Tina Turner</creator>
+       <duration>265000</duration>
+       <image>http://images.amazon.com/images/...</image>
+       <extension application="http://www.last.fm/">
+        <trackauth>12345</trackauth>
+        <artistpage>http://www.last.fm/music/Tina+Turner</artistpage>
+        <albumpage>http://www.last.fm/music/...</albumpage>
+        <trackpage>http://www.last.fm/music/...</trackpage>
+        <buyTrackURL>...</buyTrackURL>
+        <buyAlbumURL/>
+        <freeTrackURL>
+        </extension>
+      </track>
+      <track>
+       ...
+
+The expiry extension is used to communicate in seconds (from the granting of the XSPF), how long any of the track URLs in your XSPF are valid for. If you request any tracks after this expiry period you will receive errors from our streaming service (see below).
+
+Note the extension node, which holds last.fm specific information relating to the track.
+
+The trackauth extension is now deprecated and can be ignored.
+
+Use the location nodes to fetch individual tracks. All tracks must be requested once and only once, in the order supplied in the XSPF. Requesting the same track multiple times will result in an HTTP error returned from our streamers. Note that the track URLs provided will force an HTTP 302 redirect to the actual track location.
+
+Please ensure your streaming library supports HTTP redirects when fetching tracks
+
+All tracks streamed are encoded as 128kbps MP3 (opens new window) files. We recommend clients begin playback as soon as a reasonable buffer (6-8 seconds) has been fetched. Do not attempt to store the file locally other than maintaining a reasonable buffer.
+
+Pausing playback is strictly not allowed and our streamers will return an error if you attempt to reconnect to the track more than once.
+Streamer Error Codes
+
+    HTTP 403 - Invalid ticket: You may be requesting tracks in the wrong order, your playlist may have expired or you have attempted to fetch the same track URL multiple times.
+    HTTP 503 - Unexpected Error: Our streamers are not healthy. Try again later.
+
+Playlists API
+
+DEPRECATED
+
+This functionality is no longer supported. Documentation exists for reference only.
+
+Last.fm playlists do not contain streaming content.
+Fetching Last.fm Playlists
+
+Use the playlist.fetch method call to fetch XSPF (opens new window) playlists. XSPF is a web standard for sharable playlists, and XSPF libraries (opens new window) are available in several languages. playlist.fetch takes a `lastfm' protocol URL as an argument; this identifies the playlist you're requesting. The following protocol url schemes are currently supported:
+
+    Album Playlists lastfm://playlist/album/<album_id>
+    User Playlists lastfm://playlist/<playlist_id>
+    Tag Playlists lastfm://playlist/tag/<tag_name>/freetracks
+
+Playback
+
+If you'd like to add play links to your playlist you can link to the Last.fm track page (which will be present in the XSPF extension node), appending '?autostart' to the URL.
+
+API Tools
+
+UNOFFICIAL
+
+These API tools are unofficial and are not supported by Last.fm. Please contact the individual authors with questions and patches if need be.
+
+.NET
+
+    LastFmLib.Net (opens new window)
+    LPFM Last.fm Scrobbler (opens new window)
+
+Actionscript
+
+    lastfm-as3-api (opens new window)
+
+C#
+
+    lastfm-sharp (opens new window)
+
+Java
+
+    Last.fm API Java Bindings (opens new window)
+
+Javascript
+
+    JavaScript Last.fm API - Felix Bruns (opens new window)
+
+Objective C
+
+    FMEngine (opens new window)
+
+Perl
+
+    Net::LastFM (opens new window)
+
+PHP
+
+    PHP Last.FM API - Matt Oakes (opens new window)
+    PHP last.fm API - Felix Bruns (opens new window)
+
+Python
+
+    pyLast (opens new window)
+
+Qt C++
+
+    liblastfm (opens new window)
+
+Ruby
+
+    Scrobbler2 (opens new window)
+
+Contributing
+
+If you're writing any tools that use the Last.fm API and you think others might be interested (no matter what the programming language), post a link on the support forum (opens new window). If we decide to include it as a download on this page we'll even send you some Last.fm merchandise. Because we're nice like that.
+
+REST Requests
+
+API ROOT
+
+The API root URL is located at http://ws.audioscrobbler.com/2.0/ (opens new window)
+
+Generally speaking, you will send a method parameter expressed as 'package.method' along with method specific arguments to the root URL. The following parameters are required for all calls:
+
+api_key : A Last.fm API Key.
+method : An API method expressed as package.method, corresponding to a documented last.fm API method name.
+
+For example:
+
+http://ws.audioscrobbler.com/2.0/?method=artist.getSimilar&api_key=xxx...
+
+If you are accessing a write service, you will need to submit your request as an HTTP POST request. All POST requests should be made to the root url:
+
+http://ws.audioscrobbler.com/2.0/
+
+With all parameters (including the 'method') sent in the POST body. In order to perform write requests you will need to authenticate a user with the API. See authentication for more.
+REST Responses
+
+Responses will be wrapped in an lfm status node
+
+<lfm status="$status">
+    ...
+</lfm>
+
+Where $status is either ok or failed. If the status is failed you'll get an error code and message. You can strip the status wrapper from the response by sending a raw=true argument with your method call.
+REST Errors
+
+See the individual method call pages for service specific error codes. Errors will communicate a code and a message in the following format:
+
+<lfm status="failed">
+    <error code="10">Invalid API Key</error>
+</lfm>
+
+JSON Responses
+
+You can request API responses in JSON format with the following parameters:
+
+format=json : A Last.fm API Key.
+callback (Optional) : A callback function name which will wrap the JSON response.
+Note:
+
+If you don't specify a callback, there's no default, and the response will be pure JSON content with a application/json MIME type. With a callback, the MIME type is text/javascript
+
+The response is a translation of the XML response format, converted according to the following rules:
+
+    Attributes are expressed as string member values with the attribute name as key.
+    Element child nodes are expressed as object members values with the node name as key.
+    Text child nodes are expressed as string values, unless the element also contains attributes, in which case the text node is expressed as a string member value with the key #text. *
+    Repeated child nodes will be grouped as an array member with the shared node name as key.
+
+* This idiom is rarely used in our XML responses.
+Example success response:
+
+{
+"results": {
+    "tagmatches": {
+      "tag": \[{
+        "name": "disco",
+        "count": "55483",
+        "url": "www.last.fm\\/tag\\/disco"
+      },
+      ...
+      {
+        "name": "disco pop",
+        "count": "160",
+        "url": "www.last.fm\\/tag\\/disco%20pop"
+      }\]
+    },
+    "for": "disco"
+  }
+}
+
+Original XML response:
+
+<?xml version="1.0" encoding="utf-8"?>
+<lfm status="ok">
+ <results for="disco" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
+    <opensearch:Query role="request" searchTerms="disco" startPage="1" />
+    <opensearch:totalResults>2641</opensearch:totalResults>
+    <opensearch:startIndex>0</opensearch:startIndex>
+    <opensearch:itemsPerPage>20</opensearch:itemsPerPage>
+    <tagmatches>
+      <tag>
+        <name>disco</name>
+        <count>55483</count>
+        <url>www.last.fm/tag/disco</url>
+      </tag>
+      ...
+      <tag>
+        <name>disco pop</name>
+        <count>160</count>
+        <url>www.last.fm/tag/disco%20pop</url>
+      </tag>
+    </tagmatches>
+  </results>
+</lfm>
+
+JSON Errors
+
+JSON errors do not follow the same transformation rules as success errors, but use the following simplified form:
+Example failure response:
+
+{
+    "error": 10,
+    "message": "Invalid API Key"
+}
+
+XML-RPC
+XML-RPC Requests
+
+Send xml-rpc requests as HTTP POST requests to http://ws.audioscrobbler.com/2.0/ (opens new window) . Send your params as named arguments using a struct in the first param node. See the example below.
+
+<methodCall>
+ <methodName>user.gettoptags</methodName>
+ <params>
+  <param>
+   <value>
+    <struct>
+     <member>
+      <name>user</name>
+      <value>
+       <string>joanofarctan</string>
+      </value>
+     </member>
+     <member>
+      <name>api_key</name>
+      <value>
+       <string>b25b959554ed76058ac220b7b2e0a026</string>
+      </value>
+     </member>
+    </struct>
+   </value>
+  </param>
+ </params>
+</methodCall>
+
+XML-RPC Responses
+
+XML-RPC requests will receive responses in XML-RPC format by default. See the XML-RPC specification (opens new window) for more information.
+
+API Terms of Service
+If you are planning to use our API for commercial or research/academic purposes, or have any questions about the license terms, please drop us a line prior to use via email at partners [at] last [dot] fm
+
+Please carefully read this agreement (the "agreement") before using Last.fm's webservices, as it affects your legal rights and obligations. This Agreement governs the way that You are permitted to access Last.fm Data (as defined below) via the API. By accessing the API, You agree to accept and abide by the terms set out in this Agreement in respect of Your access to and use of the Last.fm Data.
+
+The terms of this Agreement may be updated by Last.fm from time to time by providing you with written notice containing the updated terms. Any such updated terms shall supersede and replace the terms of this Agreement. By continuing to use any Last.fm Data, you will be deemed to have accepted the updated terms. If you do not agree to be bound by this agreement, do not use Last.fm's webservices.
+The terms in a nutshell
+
+    Last.fm grants You a limited terminable licence to copy and use the Last.fm Data, subject to certain restrictions set out in this Agreement and any additional restrictions arising from changes to Last.fm's Privacy Policy from time to time.
+    Although You are granted this licence without charge, Last.fm reserves the right to share in revenue generated from your use of Last.fm Data in future on terms to be negotiated in good faith between Last.fm and You.
+    This Agreement covers only Your use of Last.fm Data. You must not sub-license the Last.fm Data to others.
+    This Agreement does not entitle you to stream music or other content available on the Last.fm Site.
+    You must not transmit, export, transfer, divert, or send any Last.fm Data to any country without obtaining any consents or authorisations required by law or regulation in such country.
+    You must credit Last.fm and include links to the Last.fm site when You use the Last.fm Data.
+    You must comply with the Last.fm Brand Guidelines that can be downloaded from http://www.last.fm/resources/
+
+1. Definitions
+
+    "API" means the application programming interface that supports requests for web services made of it by computer programs
+    "Data storage" means any database, spreadsheet, chart, physical document, server, network, or other means of storing information, whether created or distributed by You or otherwise.
+    "Last.fm Data" means any data, images, text, content or other information or materials made available to You by Last.fm through the API.
+    "Last.fm Site" means Last.fm's website and all related properties, the url of which is located at www.last.fm
+    "Term" shall mean the duration of this Agreement which shall start on the date that Last.fm provides you with an API key pursuant to Clause 2.6 (evidenced by Last.fm's server logs) and shall continue unless and until terminated in accordance with Clause 9.
+    "User(s)" means a user of the Last.fm Site.
+
+2. Conditions of Use
+2.1
+
+Your access to and use of the API and the Last.fm Data is subject to the terms of this Agreement, the Last.fm Site Terms of Use as posted on the Last.fm Site at http://www.last.fm/legal/terms and updated from time to time and the Last.fm Privacy Policy as posted on the Last.fm Site at http://www.last.fm/legal/privacy and updated from time to time, each of which is incorporated into this Agreement by reference. If Last.fm has granted you permission to use the API and Last.fm Data for commercial purposes in accordance with the Commercial Use Terms, such Commercial Use Terms shall also form part of this Agreement. For more information about how to apply to use the API and Last.fm Data for commercial purposes, please contact us via email at partners [at] last [dot] fm.
+2.2
+
+You must be a registered User to have access to, retrieve and use the Last.fm Data.
+2.3
+
+You may access, retrieve, store and use any Last.fm Data in accordance with the laws relating to the storage and processing of data in the country in which You live, provided that if You live in a country outside the European Economic Area, You may only use and access and use Last.fm data in that country if Users have expressly given their permission for You to do so when they registered as a User.
+2.4
+
+You must at all times in Your use of the Last.fm Data: (i) comply with all local and international laws and regulations, including, all applicable intellectual property and data protection laws; and (ii) obtain all necessary licences and permissions.
+2.5
+
+You must not transmit, export, transfer, divert or send any Last.fm Data to any country without obtaining any consents or authorisations required under law or regulation in such country.
+2.6
+
+You agree to only use Last.fm's web services as documented on the following pages: http://www.audioscrobbler.net/data/webservices/; http://www.last.fm/api/. Last.fm will provide You with an API key from time to time to access and use the API. You may only use APIs in conjunction with the most recent user authentication key provided to You by Last.fm. You must not gather any other data from Last.fm in any other way.
+2.7
+
+You agree to use one of the buttons saying "powered by AudioScrobbler" from the page located at http://www.last.fm/resources, such button linking back to Last.fm. All links to Last.fm from pages with profile information for a Last.fm User account should link to the appropriate Last.fm User page (example: http://www.last.fm/user/<username>). All links to Last.fm from pages displaying information on an artist, album or track should link to the appropriate catalogue page on Last.fm. For example: http://www.last.fm/music/<artistname>, http://www.last.fm/music/<artistname>/<albumname>, http://www.last.fm/music/<artistname>/_/<trackname>.
+
+All button/link placements are subject to approval by Last.fm and Last.fm can suggest the use of a button/link of its choice for You to use if Last.fm deems necessary. You agree to only give public access to pages using Last.fm's web services that have been previously approved by Last.fm in writing.
+2.8
+
+You agree to implement and comply with standards of privacy and confidentiality for the use and sharing of any Last.fm Data or any product thereof that are, as a minimum, as stringent as the standards set out in the Last.fm Privacy Policy as amended and updated by Last.fm from time to time.
+2.9
+
+Last.fm may use technical measures to track Your use of the Last.fm Data for the purpose of ensuring compliance with this Agreement.
+3. Use of the API and Last.fm Data
+3.1
+
+You are permitted to use the Last.fm Data solely for non-commercial purposes and for no other purpose and subject always to any limitations or conditions as advised to You by Last.fm at any time. If you are unsure whether your use of the Last.fm Data constitutes non-commercial or commercial use, you should contact us.
+3.2
+
+The permission granted to You at Clause 3.1 is strictly conditional upon Your using the Last.fm Data for non-commercial purposes, as set out above. If at any time you wish to use the Last.fm Data for commercial purposes, you must apply for a commercial use agreement. Any use by You of the Last.fm Data for commercial purposes without obtaining a commercial use agreement constitutes a material breach of this Agreement which shall entitle Last.fm to terminate your use of the Last.fm Data immediately. Any such termination shall be without prejudice to any rights and remedies of Last.fm, including the right to claim for damages against You.
+4. License to use the Last.fm Data
+4.1
+
+Subject to the restrictions set out at Clauses 4.2 and 4.3 below and in consideration of the licence granted to You below, Last.fm grants to You a worldwide, royalty-free, non-exclusive licence for the duration of copyright and any other rights in the Last.fm Data to: (i) copy the Last.fm Data; (ii) edit, modify, adapt or translate the Last.fm Data in any media to create a derivative work (a "Derivative Work"); (iii) incorporate the Last.fm Data in its entirety in unmodified form along with a number of other separate and independent works, assembled into a collective whole (a "Collective Work"); and (iv) publish, distribute or otherwise communicate the Last.fm Data or the Last.fm Data as incorporated in any Derivative Work or Collective Work to the public in any material form in any media now known.
+4.2
+
+The licence granted at Clause 4.1 above is conditional upon You:
+4.2.1
+
+Making reference to the licence granted by Last.fm (appropriate to the media used) on all copies of the Last.fm Data, Derivative Works and/or Collective Works published, distributed or otherwise communicated or made available to the public by You;
+4.2.2
+Crediting Last.fm in the form set out in Clause 2.7 where You have used Last.fm Data or created a Derivative Work and/or Collective Work that You publish, distribute or otherwise communicate to the public;
+4.2.3
+complying with any and all restrictions notified to You by Last.fm in relation to the treatment of any personal data (and for the purposes of this Clause 4.2.3, any changes to Last.fm's Privacy Policy shall automatically constitute notice); and
+4.2.4
+to the extent reasonably practicable, keeping intact all notices that refer to the licence granted to You, if any, that Last.fm specifies to be associated with the Last.fm Data, Derivative Works and/or Collective Works.
+4.3
+The licence granted to You at Clause 4.1 is subject to the following restrictions:
+4.3.1
+You must not impose any terms on the use to be made of the Last.fm Data, a Derivative Work or a Collective Work that alters or restricts the terms of the licence granted to You under this Agreement or which has the effect or intent of restricting the ability to exercise those rights;
+4.3.2
+You must not impose or apply any digital rights management technology to or on the Last.fm Data or the Last.fm Data as incorporated in a Derivative Work or Collective Work that alters or restricts the terms of the licence or any rights granted under it, or has the effect or intent of restricting the ability to exercise those rights;
+4.3.3
+You must not sub-license the Last.fm Data to a third party; and
+4.3.4
+You must not subject the Last.fm Data to any derogatory treatment, including (but not limited to) distortion or mutilation of the Last.fm Data or treatment that is prejudicial (in Last.fm's opinion) to the reputation of Last.fm. For the avoidance of doubt, the licence granted to You is temporary and restricted to a small portion of Last.fm Data available via the API, not to exceed the Reasonable Usage Cap in total at any time. Any use, storage, publication, distribution, communication, making available or otherwise of Last.fm Data in excess of the Reasonable Usage Cap is strictly prohibited. The "Reasonable Usage Cap" is a maximum of 100 MB, as may be updated by Last.fm from time to time. If you would like a larger portion of Last.fm Data, prior written consent from Last.fm is required - please contact us via email at partners [at] last [dot] fm. You will implement suitable caching in accordance with the HTTP headers sent with web service responses.
+4.4
+
+Rate Limit: Last.fm sets and enforces limits on use of the API to prevent abuse and ensure reliability of service (e.g. limiting the number of API requests that you may make or the number of users you may serve), in our sole discretion. You agree to, and will not attempt to circumvent, such limitations. If you would like to use the API beyond these limits, you must obtain Last.fm’s express consent (and Last.fm may decline such request or condition acceptance on your agreement to additional terms and/or charges for that use). To seek such approval, please contact us via email at partners [at] last [dot] fm.
+4.5
+
+Notwithstanding the licence at clause 4.1, all rights in and to the Last.fm Data (including all copyright and database rights) remain vested in Last.fm.
+4.6
+
+Last.fm may, from time to time, prevent certain Last.fm Data from being available via the API.
+4.7
+
+Last.fm respects copyright. You shall not under any circumstances use the Last.fm Data for the purpose of, or in conjunction with, the unauthorised exploitation of intellectual property or for any other purpose which encourages, supports or is in any way associated with unauthorised exploitation.
+5. Warranties and Indemnity
+5.1
+
+You warrant and represent to Last.fm that:
+5.1.1
+You have the authority to enter into this Agreement on Your own behalf or on behalf of any company or other legal entity by which You are employed and that wishes to use the Last.fm Data;
+5.1.2
+You will comply with all local and international laws and regulations, including, all applicable intellectual property and data protection laws in connection with Your use and storage of the Last.fm Data;
+5.1.3
+You will obtain and maintain any and all necessary licences and permissions in connection with Your use of the Last.fm Data;
+5.1.4
+Your use of the Last.fm Data will not violate or infringe the rights of any third party, including intellectual property rights or rights of privacy;
+5.1.5
+You will not use the Last.fm Data for any purpose that is fraudulent, misleading or illegal or otherwise than is permitted by this Agreement;
+5.1.6
+You will not use the Last.fm Data for any purpose to enable You to personally identify or contact any User;
+5.1.7
+You will not use the Last.fm Data in any way that is libellous or defamatory of third parties, or is obscene, malicious or discriminatory in any way, including but not limited to race, disability, sex, sexual orientation or religion;
+5.1.8
+You will not use the Last.fm Data in any way or on any website that is associated or promotes, encourages, facilitates or condones the illegal or unauthorised use or sharing of content. You will not use any audio, audiovisual, images and/or artwork, whether or not accessible through the API, and all such content is expressly excluded from this Agreement;
+5.1.9
+You will not interfere or attempt to interfere with the operation or running of the Last.fm Site with any virus, worm, Trojan horse, adware, spyware or any other form of malicious code or software; and
+5.1.10
+You will at all times comply with the terms of this Agreement and any other terms or policies referenced in this Agreement or on the Last.fm Site.
+5.2
+
+You will not bring any claim against Last.fm, or any of its licensees, assigns or successors, for damages, liabilities, causes of action, judgments, or claims in respect of Your access, retrieval and/or use of the Last.fm Data or any intellectual property You develop that is based on may otherwise arise out of Your use of, reliance on, or reference to the Last.fm Site or Last.fm Data.
+5.3
+
+You will indemnify, and keep Last.fm, its affiliates, licensees, assigns, successors, customers, Users, all third-party advertisers, technology providers and service providers, and each of their respective employees, directors and representatives (each an "Indemnified Party"), fully and effectively indemnified from and against any and all liabilities, costs, expenses, damages and losses (including any direct, indirect or consequential losses, loss of profit, loss of reputation and all reasonable professional costs and expenses), suffered or incurred by an Indemnified Party arising out of or in connection with any claims, actions or proceedings ("Claims") which arise out of or are related to: (i) Your access, retrieval and use of the Last.fm Data; (ii) any breach of the warranties contained in Clause 5; and (iii) Your violation of any term or condition of this Agreement (including the Last.fm Site Terms of Use and Last.fm Privacy Policy attached). At Last.fm's option, You will assume control of the defence of any Claim and all related settlement negotiations, except that Last.fm shall be entitled to take any action which Last.fm (acting reasonably) deems necessary where You have failed to take action or materially delay taking action in defending or settling a Claim and such failure or delay may, in the opinion of Last.fm, prejudice the interests of Last.fm. In any event, You may not settle any Claim without Last.fm's prior written consent.
+6. Limitation of Liability
+6.1
+
+Nothing in this agreement shall limit Last.fm's liability for death or personal injury caused by the negligence of Last.fm or its officers, employees or agents or for fraudulent misrepresentations or fraud, or any other liability that cannot be limited or excluded by applicable law.
+6.2
+
+Last.fm gives no warranties of any kind, whether express, implied, statutory or otherwise, to the fullest extent permitted by law, including warranties of satisfactory quality, fitness for purpose and non infringement in relation to the last.fm site or the last.fm data.
+6.3
+
+To the extent permitted by applicable law, you acknowledge and agree that you use the last.fm site and the last.fm data at your own risk. the last.fm data and the last.fm site is made available on an "as is" basis and last.fm shall not be liable for the unavailability of the last.fm data or the last.fm site or any fault, defect or error in the last.fm data.
+6.4
+
+To the extent permitted by applicable law, last.fm shall not be liable to you for any losses of any kind arising under or in relation to your use of the last.fm site or last.fm data, including but not limited to (i) any loss of profits, business, contracts, anticipated savings, goodwill, or revenue; or (ii) any loss or corruption of data; or (iii) consequential loss or damage whatsoever, whether or not such losses or damages arise directly or indirectly and even if either party was aware of the possibility of such loss or damage.
+7. Licence to use Last.fm trade marks
+7.1
+
+Subject to the prior written approval of Last.fm in each case, Last.fm may make available to You certain trade marks, logos or graphics ("Marks") for use in conjunction with Your use of the Last.fm Data. You must comply with the Last.fm Brand Guidelines that can be downloaded from http://www.last.fm/resources/. Your use of the Marks in accordance with in accordance with this Agreement is conditional upon You not using any of the Marks: (i) to represent that Last.fm endorses, sponsors or is connected to Your use of the Last.fm Data, other than to inform third parties that the Last.fm Data originated from Last.fm; or (ii) in any way that is derogatory to or critical of Last.fm or any officer, director, agent, employee, affiliate, parent or subsidiary of Last.fm.
+7.2
+
+Last.fm is the worldwide owner of the Marks (whether registered or unregistered) and retains all right, title and interest in and to the Marks. Any and all goodwill arising from Your use of the Marks shall accrue to Last.fm. You will not copy or use the Marks in any way not authorised by Last.fm in writing or this Agreement. You will abide by any and all conditions set out by Last.fm in connection with Your use of the Marks and must not challenge the validity of the Marks or attempt to register similar or trade marks, service marks or logos.
+7.3
+
+Last.fm reserves the right to withdraw its consent for You to use the Marks at any time. Upon withdrawal of consent, You shall immediately discontinue Your use of the Marks.
+8. Publicity
+8.1
+
+Last.fm may, at any time in its sole discretion, prepare and issue press releases, statements, and promotional and other materials mentioning and/or describing Your use of the Last.fm Data and identifying You as the developer and otherwise describing the relationship between You and Last.fm.
+8.2
+
+You are not permitted to issue any publicity in connection with Your use of the Last.fm Data without the prior written consent of Last.fm.
+9. Term and Termination
+9.1
+
+This Agreement shall continue on an ongoing basis during the Term, subject to any earlier termination pursuant to clause 9.2.
+9.2
+
+You may terminate this Agreement at any time by sending an email to partners [at] last [dot] fm which shall be deemed to have been given on the date that the email is read by Last.fm (evidenced by a read receipt automatically sent to You). You acknowledge and agree that Last.fm may at any time in its sole discretion, without liability and with or without cause terminate this Agreement and/or terminate, restrict, block, disable or suspend Your access to the Last.fm Site or the Last.fm Data or any portion or feature of any of them.
+9.3
+
+Upon any termination of this Agreement, You must immediately discontinue Your use of the Last.fm API and as soon as reasonably possible delete all Last.fm Data in Your possession or control. Clauses 2.3, 2.4, 2.5, 2.6, 4.2.2, 5, 6, 7, 8 and 10 and any definitions that are necessary to give effect to such Clauses will survive any termination of Your use of the Last.fm Site or Last.fm Data and will continue to bind You and Last.fm in accordance with this Agreement.
+10. General
+10.1
+
+Last.fm reserves its right to amend this Agreement or any other document referenced in this Agreement at any time in its sole discretion by sending a new or amended version of this Agreement to You by email and by posting new or updated Last.fm Site Terms of Use and/or the Privacy Policy on the Last.fm Site.
+10.2
+
+Nothing in this Agreement shall be construed as constituting a partnership, joint venture or relationship of employer and employee between the parties.
+10.3
+
+This Agreement (and any other document incorporated into this Agreement by reference) sets out the entire agreement and understanding between You and Last.fm and supersedes all previous agreements, representations and arrangements between You and Last.fm (either oral or written). Nothing in this Clause shall limit or exclude any liability for fraudulent misrepresentation.
+10.4
+
+This Agreement will be binding upon and inure to the benefit of the parties and their respective successors and assigns.
+10.5
+
+Each of Last.fm's affiliates are express and intended third party beneficiaries of this Agreement and may enforce any of its terms and exercise any of the rights to the same extent as Last.fm.
+10.6
+
+Third party advertisers, technology providers and service providers are express and intended third-party beneficiaries of Clause 4.3 and are entitled to directly enforce their rights hereunder.
+10.7
+
+This Agreement shall be governed by the laws of England and the parties agree to submit to the exclusive jurisdiction of the Courts of England.
+10.8
+
+Except as set out at Clauses 10.6 and 10.7 above, nothing in this Agreement is intended to confer on any third party (whether referred to in this Agreement by name, class, description or otherwise) any benefit or any right under any legislation in any country to enforce any provision of this Agreement.
+
+THIS AGREEMENT SETS OUT THE CONDITIONS OF LAST.FM GIVING YOU ACCESS TO LAST.FM DATA ONLY. IF YOU ARE UNSURE ABOUT ANY PART OF THIS AGREEMENT, LAST.FM RECOMMENDS THAT YOU OBTAIN INDEPENDENT LEGAL ADVICE.
+
+Standard Error Codes
+
+The following standard error codes may be returned by any method:
+
+    2 : Invalid service - This service does not exist
+    3 : Invalid Method - No method with that name in this package
+    4 : Authentication Failed - You do not have permissions to access the service
+    5 : Invalid format - This service doesn't exist in that format
+    6 : Invalid parameters - Your request is missing a required parameter
+    7 : Invalid resource specified
+    8 : Operation failed - Something else went wrong
+    9 : Invalid session key - Please re-authenticate
+    10 : Invalid API key - You must be granted a valid key by last.fm
+    11 : Service Offline - This service is temporarily offline
+    13 : Invalid method signature supplied
+    16 : There was a temporary error processing your request / The service is temporarily unavailable, please try again
+    26 : Suspended API key - Access for your account has been suspended
+    29 : Rate limit exceeded - Your IP has made too many requests
+
