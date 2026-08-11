@@ -1,0 +1,13 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Last.fm API",
+      "description": "Last.fm API integration, authentication, scrobbling, errors, and method reference.",
+      "skills": [
+        "lastfm-api"
+      ]
+    }
+  ]
+}
