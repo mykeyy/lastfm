@@ -4,76 +4,100 @@ Last.fm API Skill
 
 .. image:: logo.svg
    :width: 120px
-   :alt: Last.fm Logo
+   :alt: Last.fm logo
 
-.. image:: https://img.shields.io/badge/skills.sh-mykeyy/lastfm-D51007
+.. image:: https://skills.sh/b/mykeyy/lastfm
    :target: https://skills.sh/mykeyy/lastfm
-   :alt: skills.sh badge
+   :alt: skills.sh installs
 
-This is an Agent Skill for the Last.fm Music Discovery API. It gives your AI tools a complete, compressed lookup guide for everything they need to interact with Last.fm: authentication, scrobbling, and API methods.
+A compact Agent Skill for the Last.fm Music Discovery API.
 
-.. note::
-   This is an unofficial, community-maintained project. It is not affiliated with, sponsored by, or endorsed by Last.fm.
+The repository keeps ``SKILL.md`` small and routes agents to focused reference files for authentication, scrobbling, errors, or a single API namespace. An agent working on ``album.getInfo`` should not need to load track scrobbling rules or the whole Last.fm documentation set.
 
-Instead of raw HTML docs that waste context windows, the references in this repository are compressed to save space while retaining details. Your agent will read the compressed files to get the information it needs, reducing token usage and speeding up responses.
+This is an unofficial community project. It is not affiliated with, sponsored by, or endorsed by Last.fm.
 
-What is inside
-==============
+Why this exists
+===============
 
-* **SKILL.md**: The entry point for the skill, containing the method index and basic API parameters.
-* **references/**: The folder containing compressed text documentation for each namespace.
+Last.fm's API documentation is useful, but loading a large documentation dump into an agent wastes context. This skill uses progressive disclosure instead. The entry file tells the agent which reference to open, and the detailed material stays out of context until it is needed.
 
-+-------------------------------+-----------------------------------------------------------------+
-| File                          | Contents                                                        |
-+===============================+=================================================================+
-| references/fm_a_main.txt      | Authentication flows, scrobbling criteria, signature signing    |
-+-------------------------------+-----------------------------------------------------------------+
-| references/fm_api_track.txt   | Track methods, including track.scrobble and updateNowPlaying    |
-+-------------------------------+-----------------------------------------------------------------+
-| references/fm_api_*.txt       | Namespace-specific method specifications (album, artist, user)  |
-+-------------------------------+-----------------------------------------------------------------+
+The method list and core behavior are based on the official Last.fm API documentation. When the local reference and the current official documentation disagree, the official documentation should be treated as the source of truth.
 
-Installation
-============
+Repository layout
+=================
 
-Claude Code
------------
+``SKILL.md``
+   Small routing layer for the skill. It explains which reference file to read for a task.
 
-Clone this repository directly into Claude Code's skills directory:
+``references/overview.md``
+   API root, request format, JSON responses, encoding, usage guidance, and current namespaces.
 
-.. code-block:: sh
+``references/authentication.md``
+   Web, desktop, and mobile authentication, session lifetime, and ``api_sig`` signing.
 
-   mkdir -p ~/.claude/skills
-   git clone https://github.com/Mykeyy/lastfm.git ~/.claude/skills/lastfm-api
+``references/scrobbling.md``
+   Scrobble timing, now playing, batching, ``chosenByUser``, filtering, and retry behavior.
 
-OpenCode
---------
+``references/errors.md``
+   Last.fm error codes and practical handling notes.
 
-Clone this repository directly into OpenCode's skills directory:
+``references/fm_api_*.txt``
+   Method details split by namespace: album, artist, auth, chart, geo, library, tag, track, and user.
 
-.. code-block:: sh
-
-   mkdir -p ~/.config/opencode/skills
-   git clone https://github.com/Mykeyy/lastfm.git ~/.config/opencode/skills/lastfm-api
+Install
+=======
 
 skills.sh
 ---------
 
-If you use a client compatible with the skills.sh registry:
+The current skills CLI can install the repository directly:
 
 .. code-block:: sh
 
-   skills install Mykeyy/lastfm
+   npx skills add mykeyy/lastfm
+
+To inspect what the CLI discovers before installing:
+
+.. code-block:: sh
+
+   npx skills add mykeyy/lastfm --list
+
+Manual install
+--------------
+
+Claude Code:
+
+.. code-block:: sh
+
+   git clone https://github.com/mykeyy/lastfm.git ~/.claude/skills/lastfm-api
+
+OpenCode:
+
+.. code-block:: sh
+
+   git clone https://github.com/mykeyy/lastfm.git ~/.config/opencode/skills/lastfm-api
 
 Usage
 =====
 
-Once you load the skill into your AI environment, you can ask questions directly:
+Once installed, ask the agent about the part of Last.fm you are working with. For example:
 
-* "How do we sign API requests?"
-* "What parameters does track.scrobble require?"
-* "When do I need to set chosenByUser to 0?"
-* "Is HTTPS required for all calls?"
+* ``What parameters does track.scrobble require?``
+* ``Show me the web authentication flow.``
+* ``How should I retry failed scrobbles?``
+* ``Which user method returns recent tracks?``
+* ``Build a JSON request for album.getInfo.``
+
+The skill should open only the reference files needed for the question.
+
+Official documentation
+======================
+
+* Last.fm API: https://www.last.fm/api
+* API introduction: https://www.last.fm/api/intro
+* Authentication specification: https://www.last.fm/api/authspec
+* Scrobbling 2.0: https://www.last.fm/api/scrobbling
+* Error codes: https://www.last.fm/api/errorcodes
 
 License
 =======
