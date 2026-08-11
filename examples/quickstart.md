@@ -1,11 +1,11 @@
 # Quickstart examples
 
-These examples are for developers reading the repository. Agents should still read the matching reference file before generating production code.
+These examples use placeholders only. Keep real API secrets and session keys out of chat, source control, logs, and frontend code.
 
 ## Read an album as JSON
 
 ```sh
-curl --get 'http://ws.audioscrobbler.com/2.0/' \
+curl --get 'https://ws.audioscrobbler.com/2.0/' \
   --data-urlencode 'method=album.getInfo' \
   --data-urlencode 'api_key=YOUR_API_KEY' \
   --data-urlencode 'artist=Cher' \
@@ -19,7 +19,7 @@ curl --get 'http://ws.audioscrobbler.com/2.0/' \
 ## Read recent tracks
 
 ```sh
-curl --get 'http://ws.audioscrobbler.com/2.0/' \
+curl --get 'https://ws.audioscrobbler.com/2.0/' \
   --data-urlencode 'method=user.getRecentTracks' \
   --data-urlencode 'api_key=YOUR_API_KEY' \
   --data-urlencode 'user=LASTFM_USERNAME' \
@@ -28,28 +28,18 @@ curl --get 'http://ws.audioscrobbler.com/2.0/' \
   -H 'User-Agent: your-app-name/1.0 contact@example.com'
 ```
 
-## Sign an authenticated request
+## Authenticated requests
 
-For authenticated calls, create `api_sig` from the parameters documented in `references/authentication.md`.
+Generate `api_sig` only inside trusted application code. Read `references/authentication.md` before implementing authenticated methods.
 
-Conceptually:
-
-```text
-sort parameters by name
-exclude format and callback
-concatenate name + value with no separators
-append shared secret
-MD5 the UTF-8 string
-```
-
-Never put the shared secret in frontend code or commit it to a repository.
+Do not paste a real shared API secret or session key into a shell example, agent conversation, source file, or issue report.
 
 ## Submit a scrobble
 
-A scrobble uses HTTP POST and requires a session key plus a valid signature.
+A scrobble uses HTTPS POST and requires a session key plus a valid signature.
 
 ```sh
-curl -X POST 'http://ws.audioscrobbler.com/2.0/' \
+curl -X POST 'https://ws.audioscrobbler.com/2.0/' \
   --data-urlencode 'method=track.scrobble' \
   --data-urlencode 'artist=Cher' \
   --data-urlencode 'track=Believe' \
@@ -61,4 +51,4 @@ curl -X POST 'http://ws.audioscrobbler.com/2.0/' \
   -H 'User-Agent: your-app-name/1.0 contact@example.com'
 ```
 
-Before sending a scrobble, read `references/scrobbling.md` for the playback threshold, retry rules, and filtering behavior.
+Before sending a scrobble, read `references/scrobbling.md` for playback thresholds, retry rules, and filtering behavior.
