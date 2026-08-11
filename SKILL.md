@@ -15,7 +15,7 @@ Use this skill to answer questions or implement code against the Last.fm API wit
 2. Read only the matching local reference file from the tables below.
 3. For a method specific question, read that method namespace file before giving parameters or behavior.
 4. For authenticated methods, also read [authentication.md](references/authentication.md).
-5. For scrobbling or now playing, read [scrobbling.md](references/scrobbling.md) and [fm_api_track.txt](references/fm_api_track.txt).
+5. For scrobbling or now playing, read [scrobbling.md](references/scrobbling.md) and [track.md](references/track.md).
 6. For failures or retry logic, read [errors.md](references/errors.md).
 7. Do not invent method names, parameters, defaults, error meanings, or authentication requirements.
 
@@ -52,15 +52,15 @@ Read one namespace file unless the task crosses multiple resources.
 
 | Namespace | Reference |
 |---|---|
-| `album.*` | [fm_api_album.txt](references/fm_api_album.txt) |
-| `artist.*` | [fm_api_artist.txt](references/fm_api_artist.txt) |
-| `auth.*` | [fm_api_auth.txt](references/fm_api_auth.txt) |
-| `chart.*` | [fm_api_chart.txt](references/fm_api_chart.txt) |
-| `geo.*` | [fm_api_geo.txt](references/fm_api_geo.txt) |
-| `library.*` | [fm_api_library.txt](references/fm_api_library.txt) |
-| `tag.*` | [fm_api_tag.txt](references/fm_api_tag.txt) |
-| `track.*` | [fm_api_track.txt](references/fm_api_track.txt) |
-| `user.*` | [fm_api_user.txt](references/fm_api_user.txt) |
+| `album.*` | [album.md](references/album.md) |
+| `artist.*` | [artist.md](references/artist.md) |
+| `auth.*` | [auth.md](references/auth.md) |
+| `chart.*` | [chart.md](references/chart.md) |
+| `geo.*` | [geo.md](references/geo.md) |
+| `library.*` | [library.md](references/library.md) |
+| `tag.*` | [tag.md](references/tag.md) |
+| `track.*` | [track.md](references/track.md) |
+| `user.*` | [user.md](references/user.md) |
 
 ## Rules that apply broadly
 

@@ -57,7 +57,7 @@ The API exposes these method groups:
 * `track.*`
 * `user.*`
 
-Use the matching `fm_api_<namespace>.txt` file for method parameters and authentication requirements.
+Use the matching `<namespace>.md` file for method parameters and authentication requirements.
 
 ## Sources
 

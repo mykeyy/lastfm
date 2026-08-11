@@ -50,7 +50,7 @@ Last.fm also documents `auth.getMobileSession`, a legacy credential-bearing flow
 
 Do not collect or relay the user's account credential through an AI agent. If an application genuinely requires this method, collect the credential only inside the application's protected UI, send it directly to Last.fm over HTTPS POST, and do not persist or log it. Prefer browser authorization when possible.
 
-Read [fm_api_auth.txt](fm_api_auth.txt) for the method boundary used by this skill. Consult Last.fm's official authentication documentation when implementing the legacy flow in application code.
+Read [auth.md](auth.md) for the method boundary used by this skill. Consult Last.fm's official authentication documentation when implementing the legacy flow in application code.
 
 ## Tokens and sessions
 

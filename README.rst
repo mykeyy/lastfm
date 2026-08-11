@@ -138,7 +138,7 @@ Repository layout
 ``references/errors.md``
    API error codes and practical handling notes.
 
-``references/fm_api_*.txt``
+``references/{album,artist,auth,chart,geo,library,tag,track,user}.md``
    Detailed method references split by API namespace.
 
 ``skills.sh.json``

@@ -36,7 +36,7 @@ A failed now playing request should not be retried.
 
 `track.scrobble` is an authenticated write method. Send it as HTTP POST with form encoded UTF-8 parameters.
 
-Read [fm_api_track.txt](fm_api_track.txt) for the exact method parameters.
+Read [track.md](track.md) for the exact method parameters.
 
 ## Batch scrobbling
 
