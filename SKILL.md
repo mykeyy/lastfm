@@ -1,6 +1,8 @@
 ---
 name: lastfm-api
 description: Reference skill for the Last.fm Music Discovery API. Use for Last.fm API methods, request parameters, authentication, request signing, scrobbling, now playing, error handling, rate limits, or implementation questions. Read only the relevant local reference file for the task instead of loading the whole API reference.
+license: MIT
+compatibility: "Agent Skills open standard. Designed for Claude Code, Codex, OpenCode, Google Antigravity, and other clients that support SKILL.md skills."
 ---
 
 # Last.fm API
@@ -16,6 +18,14 @@ Use this skill to answer questions or implement code against the Last.fm API wit
 5. For scrobbling or now playing, read [scrobbling.md](references/scrobbling.md) and [fm_api_track.txt](references/fm_api_track.txt).
 6. For failures or retry logic, read [errors.md](references/errors.md).
 7. Do not invent method names, parameters, defaults, error meanings, or authentication requirements.
+
+## Portability
+
+This skill is client independent. Keep all references relative to this skill directory and do not assume a specific agent runtime, shell, editor, model provider, or proprietary tool name.
+
+When a client supports on demand skill loading, load only the files needed for the current Last.fm task. Supporting reference files are not instructions to load everything at once.
+
+When generating implementation code, adapt the language and HTTP library to the user's project instead of requiring a particular runtime.
 
 ## Security rules
 
