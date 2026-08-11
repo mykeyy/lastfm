@@ -18,7 +18,9 @@ Last.fm API Skill
    :target: LICENSE
    :alt: MIT license
 
-An Agent Skill for the Last.fm API, with focused references for authentication, scrobbling, errors, albums, artists, tracks, users, charts, tags, and the rest of the public method namespaces.
+A portable Agent Skill for the Last.fm API, with focused references for authentication, scrobbling, errors, albums, artists, tracks, users, charts, tags, and the rest of the public method namespaces.
+
+The repository uses the open ``SKILL.md`` format instead of maintaining separate copies for individual coding agents. The same skill is designed to work with Claude Code, Codex, OpenCode, Google Antigravity, and other clients that support Agent Skills.
 
 The skill is built around progressive disclosure. ``SKILL.md`` stays small. When an agent needs ``album.getInfo``, it reads the album reference. When it needs scrobbling, it reads the track and scrobbling references. Unrelated documentation stays out of context.
 
@@ -27,8 +29,10 @@ This is an unofficial community project. It is not affiliated with, sponsored by
 Install
 =======
 
-skills.sh
----------
+Recommended
+-----------
+
+Use the skills.sh CLI from the project where you want the skill available:
 
 .. code-block:: sh
 
@@ -40,30 +44,77 @@ See what the CLI discovers before installing:
 
    npx skills add mykeyy/lastfm --list
 
-The repository also has a page on https://skills.sh/mykeyy/lastfm.
+The repository page is https://skills.sh/mykeyy/lastfm.
 
-Manual install
---------------
+Client compatibility
+====================
 
-Claude Code:
+Claude Code
+-----------
+
+The normal ``npx skills add`` command is the recommended install path. For a manual global install:
 
 .. code-block:: sh
 
    git clone https://github.com/mykeyy/lastfm.git ~/.claude/skills/lastfm-api
 
-OpenCode:
+Start a new Claude Code session after installing so the skill can be discovered.
+
+Codex
+-----
+
+Run the normal install command from your project root:
+
+.. code-block:: sh
+
+   npx skills add mykeyy/lastfm
+
+Then start a new Codex session. The skill uses the Agent Skills open standard and does not require Codex-specific instructions or a separate copy of ``SKILL.md``.
+
+OpenCode
+--------
+
+OpenCode supports Agent Skills directly and discovers compatible skill directories. The normal skills.sh install works, or you can install globally:
 
 .. code-block:: sh
 
    git clone https://github.com/mykeyy/lastfm.git ~/.config/opencode/skills/lastfm-api
 
-Any client that supports the Agent Skills format can use the same repository.
+For a project-local install, OpenCode also supports the portable ``.agents/skills`` location:
+
+.. code-block:: sh
+
+   git clone https://github.com/mykeyy/lastfm.git .agents/skills/lastfm-api
+
+Google Antigravity
+------------------
+
+Antigravity uses the same directory-based Agent Skills format. For a project-local install, place the skill under ``.agents/skills``:
+
+.. code-block:: sh
+
+   git clone https://github.com/mykeyy/lastfm.git .agents/skills/lastfm-api
+
+For a global Antigravity install, Google documents the global skills directory as ``~/.gemini/config/skills``:
+
+.. code-block:: sh
+
+   git clone https://github.com/mykeyy/lastfm.git ~/.gemini/config/skills/lastfm-api
+
+In Antigravity CLI, use ``/skills`` to confirm that ``lastfm-api`` is visible. If you installed it while Antigravity was already running, start a new session before troubleshooting discovery.
+
+Other clients
+-------------
+
+skills.sh also lists support for clients including Cursor, Windsurf, GitHub Copilot, Gemini, Cline, AMP, and OpenClaw. Use the normal ``npx skills add mykeyy/lastfm`` command when the client is supported by the skills CLI.
+
+There is intentionally only one source of truth in this repository. Client-specific copies are avoided so API fixes and security updates do not drift between agents.
 
 What it covers
 ==============
 
 * Last.fm API request format and JSON responses
-* Web, desktop, and mobile authentication
+* Web, desktop, and mobile authentication boundaries
 * ``api_sig`` request signing and session keys
 * ``track.updateNowPlaying`` and ``track.scrobble``
 * Retry rules, ignored scrobbles, and Last.fm error codes
@@ -79,7 +130,7 @@ Repository layout
    API root, request format, encoding, usage guidance, and namespace overview.
 
 ``references/authentication.md``
-   Web, desktop, and mobile authentication plus request signing.
+   Web and desktop authorization, the legacy mobile authentication boundary, and request signing.
 
 ``references/scrobbling.md``
    Scrobble timing, now playing, batching, ``chosenByUser``, filtering, and retries.
